@@ -1,0 +1,10 @@
+resources/
+├── [sovereign]              <-- NOSSA PASTA MESTRA (Prioridade Alta)
+│   ├── sov_core             <-- O Cérebro (Database, Auth, Multichar)
+│   ├── sov_gameplay         <-- Sistemas (Fábricas, Bunkers, Drogas)
+│   ├── sov_politics         <-- Geopolítica (Eleições, Guerras, Fronteira)
+│   ├── sov_ai_bridge        <-- Conector LUA <-> Python (Qwen/TTS)
+│   └── sov_assets           <-- Carros, Roupas, Mapas
+│
+├── [system]                 <-- Mantidos do FiveM (chat, baseevents)
+└── [managers]               <-- Mantidos (spawnmanager, mapmanager)
