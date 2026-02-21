@@ -408,12 +408,16 @@ CREATE TABLE IF NOT EXISTS `sov_accounts` (
   `banned` tinyint(1) DEFAULT 0,
   `gems` int(20) DEFAULT 0,
   `premium_tier` int(11) DEFAULT 0,
+  `last_login` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_license` (`license`),
   KEY `steam` (`steam`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Copiando dados para a tabela project_sovereign.sov_accounts: ~0 rows (aproximadamente)
+INSERT INTO `sov_accounts` (`id`, `steam`, `discord`, `license`, `whitelisted`, `banned`, `gems`, `premium_tier`, `last_login`, `created_at`) VALUES
+	(1, NULL, NULL, 'license:57cb3d5cc21a3bfd382b36f34c4afbf4826ad334', 0, 0, 0, 0, '2026-02-21 14:49:14', '2026-02-18 17:54:17');
 
 -- Copiando estrutura para tabela project_sovereign.sov_ai_memory
 CREATE TABLE IF NOT EXISTS `sov_ai_memory` (
@@ -421,7 +425,9 @@ CREATE TABLE IF NOT EXISTS `sov_ai_memory` (
   `npc_id` int(11) NOT NULL,
   `event_description` text NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `fk_memory_npc` (`npc_id`),
+  CONSTRAINT `fk_memory_npc` FOREIGN KEY (`npc_id`) REFERENCES `sov_ai_profiles` (`npc_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Copiando dados para a tabela project_sovereign.sov_ai_memory: ~0 rows (aproximadamente)
@@ -474,6 +480,19 @@ CREATE TABLE IF NOT EXISTS `sov_bans` (
 
 -- Copiando dados para a tabela project_sovereign.sov_bans: ~0 rows (aproximadamente)
 
+-- Copiando estrutura para tabela project_sovereign.sov_business_employees
+CREATE TABLE IF NOT EXISTS `sov_business_employees` (
+  `business_id` int(11) NOT NULL,
+  `char_id` int(11) NOT NULL,
+  `role` varchar(50) DEFAULT 'Estagiario',
+  `salary` decimal(10,2) DEFAULT 0.00,
+  `last_payment` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`business_id`,`char_id`),
+  CONSTRAINT `sov_business_employees_ibfk_1` FOREIGN KEY (`business_id`) REFERENCES `sov_businesses` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Copiando dados para a tabela project_sovereign.sov_business_employees: ~0 rows (aproximadamente)
+
 -- Copiando estrutura para tabela project_sovereign.sov_businesses
 CREATE TABLE IF NOT EXISTS `sov_businesses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -494,10 +513,13 @@ CREATE TABLE IF NOT EXISTS `sov_characters` (
   `account_id` int(11) NOT NULL,
   `name` varchar(50) DEFAULT 'Indigente',
   `surname` varchar(50) DEFAULT 'Desconhecido',
+  `gender` varchar(50) DEFAULT 'Indefinido',
   `phone` varchar(20) DEFAULT NULL,
   `serial` varchar(10) DEFAULT NULL,
   `nation_id` int(1) DEFAULT 0 COMMENT '1=Valtoria, 2=Karveth',
   `bank` bigint(20) DEFAULT 5000,
+  `birthdate` varchar(10) DEFAULT '01/01/2000',
+  `skin` longtext DEFAULT NULL,
   `crypto_volume` float DEFAULT 0 COMMENT 'Moeda Black',
   `health` int(4) DEFAULT 200,
   `armor` int(4) DEFAULT 0,
@@ -507,12 +529,19 @@ CREATE TABLE IF NOT EXISTS `sov_characters` (
   `prison_time` int(11) DEFAULT 0,
   `fines` bigint(20) DEFAULT 0,
   `deleted` tinyint(1) DEFAULT 0,
+  `age` int(11) DEFAULT 20,
+  `blood` varchar(5) DEFAULT 'A+',
+  `name2` varchar(50) DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `fk_char_acc` (`account_id`),
   CONSTRAINT `fk_char_acc` FOREIGN KEY (`account_id`) REFERENCES `sov_accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela project_sovereign.sov_characters: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela project_sovereign.sov_characters: ~3 rows (aproximadamente)
+INSERT INTO `sov_characters` (`id`, `account_id`, `name`, `surname`, `gender`, `phone`, `serial`, `nation_id`, `bank`, `birthdate`, `skin`, `crypto_volume`, `health`, `armor`, `hunger`, `thirst`, `stress`, `prison_time`, `fines`, `deleted`, `age`, `blood`, `name2`) VALUES
+	(49, 1, 'ASDASD', 'ASDASDA', 'Female', '555-3347', 'LFU9424', 1, 5000, '11/11/1111', '{"appearance":{"hair":0,"beard":0,"legs":1,"shoes":1,"top":1},"model":-1667301416,"features":{"lipstickColor":0,"eyebrowStyle":0,"skinColor":0,"lipstick":255,"face1":0,"features":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"eyeColor":0,"mix":0,"face2":0}}', 0, 200, 0, 100, 100, 0, 0, 0, 1, 20, 'A+', ''),
+	(50, 1, 'ASDDDDDDDDD', 'SEDFFFFFFFFFF', 'Female', '555-1200', 'WVM9948', 2, 5000, '11/11/1111', '{"model":-1667301416,"features":{"features":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"lipstickColor":0,"lipstick":255,"skinColor":24,"eyebrowStyle":0,"face2":6,"eyeColor":0,"face1":12,"mix":0.7},"appearance":{"shoes":4,"legs":2,"top":4,"beard":0,"hair":2}}', 0, 200, 0, 100, 100, 0, 0, 0, 0, 20, 'A+', ''),
+	(51, 1, 'dfgdfg', 'dfgdfg', 'Female', '555-8266', 'OQW5894', 1, 5000, '19/04/1997', '{"appearance":{"hair":1,"beard":0,"top":1,"shoes":1,"legs":1},"features":{"face1":0,"eyebrowStyle":0,"skinColor":0,"lipstick":255,"mix":0.5,"face2":0,"features":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"eyeColor":0,"lipstickColor":0},"model":-1667301416}', 0, 200, 0, 100, 100, 0, 0, 0, 0, 20, 'A+', '');
 
 -- Copiando estrutura para tabela project_sovereign.sov_chests_config
 CREATE TABLE IF NOT EXISTS `sov_chests_config` (
@@ -528,33 +557,6 @@ CREATE TABLE IF NOT EXISTS `sov_chests_config` (
 INSERT INTO `sov_chests_config` (`id`, `name`, `weight`, `perm`, `logs`) VALUES
 	('mechanic', 'Mechanic Storage', 200, 'mechanic.storage', 1),
 	('police', 'Armory Police', 500, 'police.armory', 1);
-
--- Copiando estrutura para tabela project_sovereign.sov_dealership_stock
-CREATE TABLE IF NOT EXISTS `sov_dealership_stock` (
-  `model` varchar(50) NOT NULL COMMENT 'Ex: t20',
-  `stock_qty` int(11) DEFAULT 5,
-  `price` int(11) DEFAULT 1000000,
-  `category` varchar(50) DEFAULT 'super',
-  PRIMARY KEY (`model`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Copiando dados para a tabela project_sovereign.sov_dealership_stock: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela project_sovereign.sov_economy_logs
-CREATE TABLE IF NOT EXISTS `sov_economy_logs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `char_id` int(11) DEFAULT NULL,
-  `target_id` int(11) DEFAULT NULL,
-  `action_type` varchar(50) NOT NULL COMMENT 'transfer, buy, sell, salary, cheat_detect',
-  `amount` int(20) NOT NULL,
-  `balance_after` int(20) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `char_id` (`char_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Copiando dados para a tabela project_sovereign.sov_economy_logs: ~0 rows (aproximadamente)
 
 -- Copiando estrutura para tabela project_sovereign.sov_faction_members
 CREATE TABLE IF NOT EXISTS `sov_faction_members` (
